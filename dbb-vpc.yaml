@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: MyNewVpc
+Resources:
+  DBBVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: Name      
+         Value: DDB-VPC
+   
+  DBBInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+     Tags:
+        - Key: Name
+          Value: DBB-IGW       
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: 
+      VpcId:
+         Ref: DBBVPC
+      InternetGatewayId:
+         Ref: DBBInternetGateway 
+  DBBpubSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: 
+        Ref: DBBVPC
+      CidrBlock: 10.0.0.0/20
+      AvailabilityZone: "eu-north-1a"
+      Tags:
+        - Key: Name
+          Value: DBB-PUB-SUB
+  DBBpvtSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: 
+        Ref: DBBVPC
+      CidrBlock: 10.0.16.0/20
+      AvailabilityZone: "eu-north-1b"
+      Tags:
+       - Key: Name 
+         Value: DBB-PVT-SUB
+  DBBpubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: DBBVPC
+      Tags:
+        - Key: Name
+          Value: DBB-PUB-RT
+  DBBpvtRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:  
+        Ref: DBBVPC
+      Tags:
+        - Key: Name
+          Value: DBB-PVTRT
+  DBBpubSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: DBBpubSubnet
+      RouteTableId:
+        Ref: DBBpubRouteTable
+  DBBpvtSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: DBBpvtSubnet
+      RouteTableId:
+        Ref: DBBpvtRouteTable
+  DBBRoute:
+    Type: AWS::EC2::Route
+    DependsOn:  AttachGateway 
+    Properties:
+      RouteTableId:
+       Ref: DBBpubRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: DBBInternetGateway                       
