@@ -31,6 +31,7 @@ Resources:
         Ref: DBBVPC
       CidrBlock: 10.0.0.0/20
       AvailabilityZone: "eu-north-1a"
+      MapPublicIpOnLaunch: "true"
       Tags:
         - Key: Name
           Value: DBB-PUB-SUB
@@ -41,6 +42,7 @@ Resources:
         Ref: DBBVPC
       CidrBlock: 10.0.16.0/20
       AvailabilityZone: "eu-north-1b"
+      MapPublicIpOnLaunch: "false"
       Tags:
        - Key: Name 
          Value: DBB-PVT-SUB
